@@ -1,4 +1,4 @@
-go-radix [![Build Status](https://travis-ci.org/armon/radix.png)](https://travis-ci.org/armon/radix)
+go-radix [![Build Status](https://travis-ci.org/armon/go-radix.png)](https://travis-ci.org/armon/go-radix)
 =========
 
 Provides the `radix` package that implements a [radix tree](http://en.wikipedia.org/wiki/Radix_tree).
