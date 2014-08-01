@@ -303,6 +303,36 @@ func (t *Tree) Get(s string) (interface{}, bool) {
 // LongestPrefix is like Get, but instead of an
 // exact match, it will return the longest prefix match.
 func (t *Tree) LongestPrefix(s string) (string, interface{}, bool) {
+	var last *leafNode
+	n := t.root
+	search := s
+	for {
+		// Look for a leaf node
+		if n.isLeaf() {
+			last = n.leaf
+		}
+
+		// Check for key exhaution
+		if len(search) == 0 {
+			break
+		}
+
+		// Look for an edge
+		n = n.getEdge(search[0])
+		if n == nil {
+			break
+		}
+
+		// Consume the search prefix
+		if strings.HasPrefix(search, n.prefix) {
+			search = search[len(n.prefix):]
+		} else {
+			break
+		}
+	}
+	if last != nil {
+		return last.key, last.val, true
+	}
 	return "", nil, false
 }
 
