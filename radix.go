@@ -227,7 +227,47 @@ func (t *Tree) Insert(s string, v interface{}) (interface{}, bool) {
 // Delete is used to delete a key, returning the previous
 // value and if it was deleted
 func (t *Tree) Delete(s string) (interface{}, bool) {
+	n := t.root
+	search := s
+	for {
+		// Check for key exhaution
+		if len(search) == 0 {
+			if !n.isLeaf() {
+				break
+			}
+			goto DELETE
+		}
+
+		// Look for an edge
+		n = n.getEdge(search[0])
+		if n == nil {
+			break
+		}
+
+		// Consume the search prefix
+		if strings.HasPrefix(search, n.prefix) {
+			search = search[len(n.prefix):]
+		} else {
+			break
+		}
+	}
 	return nil, false
+
+DELETE:
+	// Delete the leaf
+	leaf := n.leaf
+	n.leaf = nil
+	t.size--
+
+	// Check if we should merge this node
+	if len(n.edges) == 1 {
+		e := n.edges[0]
+		child := e.node
+		n.prefix = n.prefix + child.prefix
+		n.leaf = child.leaf
+		n.edges = child.edges
+	}
+	return leaf.val, true
 }
 
 // Get is used to lookup a specific key, returning

@@ -8,7 +8,7 @@ import (
 
 func TestRadix(t *testing.T) {
 	inp := make(map[string]interface{})
-	for i := 0; i < 20; i++ {
+	for i := 0; i < 1000; i++ {
 		inp[generateUUID()] = i
 	}
 
