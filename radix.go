@@ -344,11 +344,6 @@ func (t *Tree) Walk(fn WalkFn) {
 // recursiveWalk is used to do a pre-order walk of a node
 // recursively. Returns true if the walk should be aborted
 func recursiveWalk(n *node, fn WalkFn) bool {
-	//if n.leaf != nil {
-	//    log.Printf("Visit: %#v %#v", n, *n.leaf)
-	//} else {
-	//    log.Printf("Visit: %#v", n)
-	//}
 	// Visit the leaf values if any
 	if n.leaf != nil && fn(n.leaf.key, n.leaf.val) {
 		return true
