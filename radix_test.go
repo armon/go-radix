@@ -7,9 +7,17 @@ import (
 )
 
 func TestRadix(t *testing.T) {
+	var min, max string
 	inp := make(map[string]interface{})
 	for i := 0; i < 1000; i++ {
-		inp[generateUUID()] = i
+		gen := generateUUID()
+		inp[gen] = i
+		if gen < min || i == 0 {
+			min = gen
+		}
+		if gen > max || i == 0 {
+			max = gen
+		}
 	}
 
 	r := NewFromMap(inp)
@@ -30,6 +38,16 @@ func TestRadix(t *testing.T) {
 		if out != v {
 			t.Fatalf("value mis-match: %v %v", out, v)
 		}
+	}
+
+	// Check min and max
+	outMin, _, _ := r.Minimum()
+	if outMin != min {
+		t.Fatalf("bad minimum: %v %v", outMin, min)
+	}
+	outMax, _, _ := r.Maximum()
+	if outMax != max {
+		t.Fatalf("bad maximum: %v %v", outMax, max)
 	}
 
 	for k, v := range inp {

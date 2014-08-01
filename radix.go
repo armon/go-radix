@@ -336,6 +336,39 @@ func (t *Tree) LongestPrefix(s string) (string, interface{}, bool) {
 	return "", nil, false
 }
 
+// Minimum is used to return the minimum value in the tree
+func (t *Tree) Minimum() (string, interface{}, bool) {
+	n := t.root
+	for {
+		if n.isLeaf() {
+			return n.leaf.key, n.leaf.val, true
+		}
+		if len(n.edges) > 0 {
+			n = n.edges[0].node
+		} else {
+			break
+		}
+	}
+	return "", nil, false
+}
+
+// Maximum is used to return the maximum value in the tree
+func (t *Tree) Maximum() (string, interface{}, bool) {
+	n := t.root
+	for {
+		if num := len(n.edges); num > 0 {
+			n = n.edges[num-1].node
+			continue
+		}
+		if n.isLeaf() {
+			return n.leaf.key, n.leaf.val, true
+		} else {
+			break
+		}
+	}
+	return "", nil, false
+}
+
 // Walk is used to walk the tree
 func (t *Tree) Walk(fn WalkFn) {
 	recursiveWalk(t.root, fn)
