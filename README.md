@@ -10,6 +10,11 @@ As a radix tree, it provides the following:
  * Minimum / Maximum value lookups
  * Ordered iteration
 
+Documentation
+=============
+
+The full documentation is available on [Godoc](http://godoc.org/github.com/armon/go-radix).
+
 Example
 =======
 
