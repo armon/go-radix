@@ -3,6 +3,8 @@ package radix
 import (
 	crand "crypto/rand"
 	"fmt"
+	"reflect"
+	"sort"
 	"testing"
 )
 
@@ -108,6 +110,85 @@ func TestLongestPrefix(t *testing.T) {
 		}
 		if m != test.out {
 			t.Fatalf("mis-match: %v %v", m, test)
+		}
+	}
+}
+
+func TestWalkPrefix(t *testing.T) {
+	r := New()
+
+	keys := []string{
+		"foobar",
+		"foo/bar/baz",
+		"foo/baz/bar",
+		"foo/zip/zap",
+		"zipzap",
+	}
+	for _, k := range keys {
+		r.Insert(k, nil)
+	}
+	if r.Len() != len(keys) {
+		t.Fatalf("bad len: %v %v", r.Len(), len(keys))
+	}
+
+	type exp struct {
+		inp string
+		out []string
+	}
+	cases := []exp{
+		exp{
+			"f",
+			[]string{"foobar", "foo/bar/baz", "foo/baz/bar", "foo/zip/zap"},
+		},
+		exp{
+			"foo",
+			[]string{"foobar", "foo/bar/baz", "foo/baz/bar", "foo/zip/zap"},
+		},
+		exp{
+			"foob",
+			[]string{"foobar"},
+		},
+		exp{
+			"foo/",
+			[]string{"foo/bar/baz", "foo/baz/bar", "foo/zip/zap"},
+		},
+		exp{
+			"foo/b",
+			[]string{"foo/bar/baz", "foo/baz/bar"},
+		},
+		exp{
+			"foo/ba",
+			[]string{"foo/bar/baz", "foo/baz/bar"},
+		},
+		exp{
+			"foo/bar",
+			[]string{"foo/bar/baz"},
+		},
+		exp{
+			"foo/bar/baz",
+			[]string{"foo/bar/baz"},
+		},
+		exp{
+			"foo/bar/bazoo",
+			[]string{},
+		},
+		exp{
+			"z",
+			[]string{"zipzap"},
+		},
+	}
+
+	for _, test := range cases {
+		out := []string{}
+		fn := func(s string, v interface{}) bool {
+			out = append(out, s)
+			return false
+		}
+		r.WalkPrefix(test.inp, fn)
+		sort.Strings(out)
+		sort.Strings(test.out)
+		if !reflect.DeepEqual(out, test.out) {
+			t.Fatalf("mis-match: %v %v", out, test.out)
 		}
 	}
 }

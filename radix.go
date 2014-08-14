@@ -374,6 +374,38 @@ func (t *Tree) Walk(fn WalkFn) {
 	recursiveWalk(t.root, fn)
 }
 
+// WalkPrefix is used to walk the tree under a prefix
+func (t *Tree) WalkPrefix(prefix string, fn WalkFn) {
+	n := t.root
+	search := prefix
+	for {
+		// Check for key exhaution
+		if len(search) == 0 {
+			recursiveWalk(n, fn)
+			return
+		}
+
+		// Look for an edge
+		n = n.getEdge(search[0])
+		if n == nil {
+			break
+		}
+
+		// Consume the search prefix
+		if strings.HasPrefix(search, n.prefix) {
+			search = search[len(n.prefix):]
+
+		} else if strings.HasPrefix(n.prefix, search) {
+			// Child may be under our search prefix
+			recursiveWalk(n, fn)
+			return
+		} else {
+			break
+		}
+	}
+
+}
+
 // recursiveWalk is used to do a pre-order walk of a node
 // recursively. Returns true if the walk should be aborted
 func recursiveWalk(n *node, fn WalkFn) bool {
