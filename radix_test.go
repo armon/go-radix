@@ -193,6 +193,78 @@ func TestWalkPrefix(t *testing.T) {
 	}
 }
 
+func TestWalkPath(t *testing.T) {
+	r := New()
+
+	keys := []string{
+		"foo",
+		"foo/bar",
+		"foo/bar/baz",
+		"foo/baz/bar",
+		"foo/zip/zap",
+		"zipzap",
+	}
+	for _, k := range keys {
+		r.Insert(k, nil)
+	}
+	if r.Len() != len(keys) {
+		t.Fatalf("bad len: %v %v", r.Len(), len(keys))
+	}
+
+	type exp struct {
+		inp string
+		out []string
+	}
+	cases := []exp{
+		exp{
+			"f",
+			[]string{},
+		},
+		exp{
+			"foo",
+			[]string{"foo"},
+		},
+		exp{
+			"foo/",
+			[]string{"foo"},
+		},
+		exp{
+			"foo/ba",
+			[]string{"foo"},
+		},
+		exp{
+			"foo/bar",
+			[]string{"foo", "foo/bar"},
+		},
+		exp{
+			"foo/bar/baz",
+			[]string{"foo", "foo/bar", "foo/bar/baz"},
+		},
+		exp{
+			"foo/bar/bazoo",
+			[]string{"foo", "foo/bar", "foo/bar/baz"},
+		},
+		exp{
+			"z",
+			[]string{},
+		},
+	}
+
+	for _, test := range cases {
+		out := []string{}
+		fn := func(s string, v interface{}) bool {
+			out = append(out, s)
+			return false
+		}
+		r.WalkPath(test.inp, fn)
+		sort.Strings(out)
+		sort.Strings(test.out)
+		if !reflect.DeepEqual(out, test.out) {
+			t.Fatalf("mis-match: %v %v", out, test.out)
+		}
+	}
+}
+
 // generateUUID is used to generate a random UUID
 func generateUUID() string {
 	buf := make([]byte, 16)

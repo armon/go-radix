@@ -406,6 +406,39 @@ func (t *Tree) WalkPrefix(prefix string, fn WalkFn) {
 
 }
 
+// WalkPath is used to walk the tree, but only visiting nodes
+// from the root down to a given leaf. Where WalkPrefix walks
+// all the entries *under* the given prefix, this walks the
+// entries *above* the given prefix.
+func (t *Tree) WalkPath(path string, fn WalkFn) {
+	n := t.root
+	search := path
+	for {
+		// Visit the leaf values if any
+		if n.leaf != nil && fn(n.leaf.key, n.leaf.val) {
+			return
+		}
+
+		// Check for key exhaution
+		if len(search) == 0 {
+			return
+		}
+
+		// Look for an edge
+		n = n.getEdge(search[0])
+		if n == nil {
+			return
+		}
+
+		// Consume the search prefix
+		if strings.HasPrefix(search, n.prefix) {
+			search = search[len(n.prefix):]
+		} else {
+			break
+		}
+	}
+}
+
 // recursiveWalk is used to do a pre-order walk of a node
 // recursively. Returns true if the walk should be aborted
 func recursiveWalk(n *node, fn WalkFn) bool {
