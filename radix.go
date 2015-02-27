@@ -67,6 +67,18 @@ func (n *node) getEdge(label byte) *node {
 	return nil
 }
 
+func (n *node) delEdge(label byte) {
+	num := len(n.edges)
+	idx := sort.Search(num, func(i int) bool {
+		return n.edges[i].label >= label
+	})
+	if idx < num && n.edges[idx].label == label {
+		copy(n.edges[idx:], n.edges[idx+1:])
+		n.edges[len(n.edges)-1] = edge{}
+		n.edges = n.edges[:len(n.edges)-1]
+	}
+}
+
 type edges []edge
 
 func (e edges) Len() int {
@@ -227,6 +239,8 @@ func (t *Tree) Insert(s string, v interface{}) (interface{}, bool) {
 // Delete is used to delete a key, returning the previous
 // value and if it was deleted
 func (t *Tree) Delete(s string) (interface{}, bool) {
+	var parent *node
+	var label byte
 	n := t.root
 	search := s
 	for {
@@ -239,7 +253,9 @@ func (t *Tree) Delete(s string) (interface{}, bool) {
 		}
 
 		// Look for an edge
-		n = n.getEdge(search[0])
+		parent = n
+		label = search[0]
+		n = n.getEdge(label)
 		if n == nil {
 			break
 		}
@@ -259,15 +275,30 @@ DELETE:
 	n.leaf = nil
 	t.size--
 
+	// Check if we should delete this node
+	if len(n.edges) == 0 {
+		parent.delEdge(label)
+	}
+
 	// Check if we should merge this node
 	if len(n.edges) == 1 {
-		e := n.edges[0]
-		child := e.node
-		n.prefix = n.prefix + child.prefix
-		n.leaf = child.leaf
-		n.edges = child.edges
+		n.mergeChild()
 	}
+
+	// Check if we should merge the parent
+	if len(parent.edges) == 1 && parent.leaf == nil && parent != t.root {
+		parent.mergeChild()
+	}
+
 	return leaf.val, true
+}
+
+func (n *node) mergeChild() {
+	e := n.edges[0]
+	child := e.node
+	n.prefix = n.prefix + child.prefix
+	n.leaf = child.leaf
+	n.edges = child.edges
 }
 
 // Get is used to lookup a specific key, returning
