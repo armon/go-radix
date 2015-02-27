@@ -66,6 +66,26 @@ func TestRadix(t *testing.T) {
 	}
 }
 
+func TestRoot(t *testing.T) {
+	r := New()
+	_, ok := r.Delete("")
+	if ok {
+		t.Fatalf("bad")
+	}
+	_, ok = r.Insert("", true)
+	if ok {
+		t.Fatalf("bad")
+	}
+	val, ok := r.Get("")
+	if !ok || val != true {
+		t.Fatalf("bad: %v", val)
+	}
+	val, ok = r.Delete("")
+	if !ok || val != true {
+		t.Fatalf("bad: %v", val)
+	}
+}
+
 func TestLongestPrefix(t *testing.T) {
 	r := New()
 
