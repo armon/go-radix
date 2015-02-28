@@ -86,6 +86,24 @@ func TestRoot(t *testing.T) {
 	}
 }
 
+func TestDelete(t *testing.T) {
+
+	r := New()
+
+	s := []string{"", "A", "AB"}
+
+	for _, ss := range s {
+		r.Insert(ss, true)
+	}
+
+	for _, ss := range s {
+		_, ok := r.Delete(ss)
+		if !ok {
+			t.Fatalf("bad %q", ss)
+		}
+	}
+}
+
 func TestLongestPrefix(t *testing.T) {
 	r := New()
 
