@@ -275,18 +275,19 @@ DELETE:
 	n.leaf = nil
 	t.size--
 
+	// Check if we should delete this node from the parent
+	if parent != nil && len(n.edges) == 0 {
+		parent.delEdge(label)
+	}
+
 	// Check if we should merge this node
-	if len(n.edges) == 1 {
+	if n != t.root && len(n.edges) == 1 {
 		n.mergeChild()
 	}
 
-	// Check if we should merge or delete this node
-	if parent != nil {
-		if len(n.edges) == 0 {
-			parent.delEdge(label)
-		} else if len(parent.edges) == 1 && !parent.isLeaf() {
-			parent.mergeChild()
-		}
+	// Check if we should merge the parent's other child
+	if parent != nil && parent != t.root && len(parent.edges) == 1 && !parent.isLeaf() {
+		parent.mergeChild()
 	}
 
 	return leaf.val, true
