@@ -174,43 +174,43 @@ func TestWalkPrefix(t *testing.T) {
 		out []string
 	}
 	cases := []exp{
-		exp{
+		{
 			"f",
 			[]string{"foobar", "foo/bar/baz", "foo/baz/bar", "foo/zip/zap"},
 		},
-		exp{
+		{
 			"foo",
 			[]string{"foobar", "foo/bar/baz", "foo/baz/bar", "foo/zip/zap"},
 		},
-		exp{
+		{
 			"foob",
 			[]string{"foobar"},
 		},
-		exp{
+		{
 			"foo/",
 			[]string{"foo/bar/baz", "foo/baz/bar", "foo/zip/zap"},
 		},
-		exp{
+		{
 			"foo/b",
 			[]string{"foo/bar/baz", "foo/baz/bar"},
 		},
-		exp{
+		{
 			"foo/ba",
 			[]string{"foo/bar/baz", "foo/baz/bar"},
 		},
-		exp{
+		{
 			"foo/bar",
 			[]string{"foo/bar/baz"},
 		},
-		exp{
+		{
 			"foo/bar/baz",
 			[]string{"foo/bar/baz"},
 		},
-		exp{
+		{
 			"foo/bar/bazoo",
 			[]string{},
 		},
-		exp{
+		{
 			"z",
 			[]string{"zipzap"},
 		},
@@ -254,35 +254,35 @@ func TestWalkPath(t *testing.T) {
 		out []string
 	}
 	cases := []exp{
-		exp{
+		{
 			"f",
 			[]string{},
 		},
-		exp{
+		{
 			"foo",
 			[]string{"foo"},
 		},
-		exp{
+		{
 			"foo/",
 			[]string{"foo"},
 		},
-		exp{
+		{
 			"foo/ba",
 			[]string{"foo"},
 		},
-		exp{
+		{
 			"foo/bar",
 			[]string{"foo", "foo/bar"},
 		},
-		exp{
+		{
 			"foo/bar/baz",
 			[]string{"foo", "foo/bar", "foo/bar/baz"},
 		},
-		exp{
+		{
 			"foo/bar/bazoo",
 			[]string{"foo", "foo/bar", "foo/bar/baz"},
 		},
-		exp{
+		{
 			"z",
 			[]string{},
 		},
