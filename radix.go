@@ -304,8 +304,8 @@ func (t *Tree) deletePrefix(parent, n *node, prefix string) int {
 	// Check for key exhaustion
 	if len(prefix) == 0 {
 		// Remove the leaf node
-		subTreeSize := 0 //count this node
-		//recursively walk from all edges of the node to be deleted, tracking their mutate channels in the transaction
+		subTreeSize := 0
+		//recursively walk from all edges of the node to be deleted
 		recursiveWalk(n, func(s string, v interface{}) bool {
 			subTreeSize++
 			return false
