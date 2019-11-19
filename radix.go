@@ -213,7 +213,7 @@ func (t *Tree) Insert(s string, v interface{}) (interface{}, bool) {
 			val: v,
 		}
 
-		// If the new key is a subset, add to to this node
+		// If the new key is a subset, add to this node
 		search = search[commonPrefix:]
 		if len(search) == 0 {
 			child.leaf = leaf
