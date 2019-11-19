@@ -143,7 +143,7 @@ func longestPrefix(k1, k2 string) int {
 }
 
 // Insert is used to add a newentry or update
-// an existing entry. Returns if updated.
+// an existing entry. Returns true if an existing record is updated.
 func (t *Tree) Insert(s string, v interface{}) (interface{}, bool) {
 	var parent *node
 	n := t.root
