@@ -324,7 +324,7 @@ func (t *Tree) deletePrefix(parent, n *node, prefix string) int {
 	// Look for an edge
 	label := prefix[0]
 	child := n.getEdge(label)
-	if child == nil || (!strings.HasPrefix(child.prefix, prefix) && !strings.HasPrefix(prefix, child.prefix)) {
+	if child == nil {
 		return 0
 	}
 
