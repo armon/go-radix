@@ -40,8 +40,14 @@ func (n *node) isLeaf() bool {
 }
 
 func (n *node) addEdge(e edge) {
-	n.edges = append(n.edges, e)
-	n.edges.Sort()
+	num := len(n.edges)
+	idx := sort.Search(num, func(i int) bool {
+		return n.edges[i].label >= e.label
+	})
+
+	n.edges = append(n.edges, edge{})
+	copy(n.edges[idx+1:], n.edges[idx:])
+	n.edges[idx] = e
 }
 
 func (n *node) updateEdge(label byte, node *node) {
