@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"reflect"
 	"sort"
+	"strconv"
 	"testing"
 )
 
@@ -356,4 +357,18 @@ func generateUUID() string {
 		buf[6:8],
 		buf[8:10],
 		buf[10:16])
+}
+
+func BenchmarkInsert(b *testing.B) {
+	r := New()
+	for i := 0; i < 10000; i++ {
+		r.Insert(fmt.Sprintf("init%d", i), true)
+	}
+	b.ResetTimer()
+	for n := 0; n < b.N; n++ {
+		_, updated := r.Insert(strconv.Itoa(n), true)
+		if updated {
+			b.Fatal("bad")
+		}
+	}
 }
