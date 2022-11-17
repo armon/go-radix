@@ -525,10 +525,27 @@ func recursiveWalk(n *node, fn WalkFn) bool {
 	}
 
 	// Recurse on the children
-	for _, e := range n.edges {
+	i := 0
+	k := len(n.edges) // keeps track of number of edges in previous iteration
+	for i < k {
+		e := n.edges[i]
 		if recursiveWalk(e.node, fn) {
 			return true
 		}
+		// It is a possibility that the WalkFn modified the node we are
+		// iterating on. If there are no more edges, mergeChild happened,
+		// so the last edge became the current node n, on which we'll
+		// iterate one last time.
+		if len(n.edges) == 0 {
+			return recursiveWalk(n, fn)
+		}
+		// If there are now less edges than in the previous iteration,
+		// then do not increment the loop index, since the current index
+		// points to a new edge. Otherwise, get to the next index.
+		if len(n.edges) >= k {
+			i++
+		}
+		k = len(n.edges)
 	}
 	return false
 }
