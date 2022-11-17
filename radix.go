@@ -458,7 +458,7 @@ func (t *Tree) WalkPrefix(prefix string, fn WalkFn) {
 	n := t.root
 	search := prefix
 	for {
-		// Check for key exhaution
+		// Check for key exhaustion
 		if len(search) == 0 {
 			recursiveWalk(n, fn)
 			return
@@ -467,22 +467,20 @@ func (t *Tree) WalkPrefix(prefix string, fn WalkFn) {
 		// Look for an edge
 		n = n.getEdge(search[0])
 		if n == nil {
-			break
+			return
 		}
 
 		// Consume the search prefix
 		if strings.HasPrefix(search, n.prefix) {
 			search = search[len(n.prefix):]
-
-		} else if strings.HasPrefix(n.prefix, search) {
+			continue
+		}
+		if strings.HasPrefix(n.prefix, search) {
 			// Child may be under our search prefix
 			recursiveWalk(n, fn)
-			return
-		} else {
-			break
 		}
+		return
 	}
-
 }
 
 // WalkPath is used to walk the tree, but only visiting nodes
