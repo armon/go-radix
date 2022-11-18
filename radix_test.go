@@ -344,6 +344,40 @@ func TestWalkPath(t *testing.T) {
 	}
 }
 
+func TestWalkDelete(t *testing.T) {
+	r := New()
+	r.Insert("init0/0", nil)
+	r.Insert("init0/1", nil)
+	r.Insert("init0/2", nil)
+	r.Insert("init0/3", nil)
+	r.Insert("init1/0", nil)
+	r.Insert("init1/1", nil)
+	r.Insert("init1/2", nil)
+	r.Insert("init1/3", nil)
+	r.Insert("init2", nil)
+
+	deleteFn := func(s string, v interface{}) bool {
+		r.Delete(s)
+		return false
+	}
+
+	r.WalkPrefix("init1", deleteFn)
+
+	for _, s := range []string{"init0/0", "init0/1", "init0/2", "init0/3", "init2"} {
+		if _, ok := r.Get(s); !ok {
+			t.Fatalf("expecting to still find %q", s)
+		}
+	}
+	if n := r.Len(); n != 5 {
+		t.Fatalf("expected to find exactly 5 nodes, instead found %d: %v", n, r.ToMap())
+	}
+
+	r.Walk(deleteFn)
+	if n := r.Len(); n != 0 {
+		t.Fatalf("expected to find exactly 0 nodes, instead found %d: %v", n, r.ToMap())
+	}
+}
+
 // generateUUID is used to generate a random UUID
 func generateUUID() string {
 	buf := make([]byte, 16)
