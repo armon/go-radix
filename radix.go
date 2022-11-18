@@ -319,6 +319,7 @@ func (t *Tree) deletePrefix(parent, n *node, prefix string) int {
 		n.edges = nil // deletes the entire subtree
 
 		// Check if we should merge the parent's other child
+		parent.delEdge(n.prefix[0])
 		if parent != nil && parent != t.root && len(parent.edges) == 1 && !parent.isLeaf() {
 			parent.mergeChild()
 		}
