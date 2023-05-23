@@ -15,7 +15,7 @@ For an immutable variant, see [go-immutable-radix](https://github.com/hashicorp/
 Documentation
 =============
 
-The full documentation is available on [Godoc](http://godoc.org/github.com/armon/go-radix).
+The full documentation is available on [Godoc](http://pkg.go.dev/github.com/armon/go-radix).
 
 Example
 =======
@@ -24,7 +24,7 @@ Below is a simple example of usage
 
 ```go
 // Create a tree
-r := radix.New()
+r := radix.New[int]()
 r.Insert("foo", 1)
 r.Insert("bar", 2)
 r.Insert("foobar", 2)
