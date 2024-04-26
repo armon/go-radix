@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"reflect"
 	"sort"
-	"strconv"
 	"testing"
 )
 
@@ -29,7 +28,6 @@ func TestRadix(t *testing.T) {
 	}
 
 	r.Walk(func(k string, v interface{}) bool {
-		println(k)
 		return false
 	})
 
@@ -68,7 +66,7 @@ func TestRadix(t *testing.T) {
 }
 
 func TestRoot(t *testing.T) {
-	r := New()
+	r := New[bool]()
 	_, ok := r.Delete("")
 	if ok {
 		t.Fatalf("bad")
@@ -88,8 +86,7 @@ func TestRoot(t *testing.T) {
 }
 
 func TestDelete(t *testing.T) {
-
-	r := New()
+	r := New[bool]()
 
 	s := []string{"", "A", "AB"}
 
@@ -122,7 +119,7 @@ func TestDeletePrefix(t *testing.T) {
 	}
 
 	for _, test := range cases {
-		r := New()
+		r := New[bool]()
 		for _, ss := range test.inp {
 			r.Insert(ss, true)
 		}
@@ -133,7 +130,7 @@ func TestDeletePrefix(t *testing.T) {
 		}
 
 		out := []string{}
-		fn := func(s string, v interface{}) bool {
+		fn := func(s string, v bool) bool {
 			out = append(out, s)
 			return false
 		}
@@ -146,7 +143,7 @@ func TestDeletePrefix(t *testing.T) {
 }
 
 func TestLongestPrefix(t *testing.T) {
-	r := New()
+	r := New[bool]()
 
 	keys := []string{
 		"",
@@ -157,7 +154,7 @@ func TestLongestPrefix(t *testing.T) {
 		"foozip",
 	}
 	for _, k := range keys {
-		r.Insert(k, nil)
+		r.Insert(k, true)
 	}
 	if r.Len() != len(keys) {
 		t.Fatalf("bad len: %v %v", r.Len(), len(keys))
@@ -194,7 +191,7 @@ func TestLongestPrefix(t *testing.T) {
 }
 
 func TestWalkPrefix(t *testing.T) {
-	r := New()
+	r := New[int]()
 
 	keys := []string{
 		"foobar",
@@ -204,7 +201,7 @@ func TestWalkPrefix(t *testing.T) {
 		"zipzap",
 	}
 	for _, k := range keys {
-		r.Insert(k, nil)
+		r.Insert(k, 1)
 	}
 	if r.Len() != len(keys) {
 		t.Fatalf("bad len: %v %v", r.Len(), len(keys))
@@ -259,7 +256,7 @@ func TestWalkPrefix(t *testing.T) {
 
 	for _, test := range cases {
 		out := []string{}
-		fn := func(s string, v interface{}) bool {
+		fn := func(s string, v int) bool {
 			out = append(out, s)
 			return false
 		}
@@ -273,7 +270,7 @@ func TestWalkPrefix(t *testing.T) {
 }
 
 func TestWalkPath(t *testing.T) {
-	r := New()
+	r := New[int]()
 
 	keys := []string{
 		"foo",
@@ -284,7 +281,7 @@ func TestWalkPath(t *testing.T) {
 		"zipzap",
 	}
 	for _, k := range keys {
-		r.Insert(k, nil)
+		r.Insert(k, 1)
 	}
 	if r.Len() != len(keys) {
 		t.Fatalf("bad len: %v %v", r.Len(), len(keys))
@@ -331,7 +328,7 @@ func TestWalkPath(t *testing.T) {
 
 	for _, test := range cases {
 		out := []string{}
-		fn := func(s string, v interface{}) bool {
+		fn := func(s string, v int) bool {
 			out = append(out, s)
 			return false
 		}
@@ -345,18 +342,18 @@ func TestWalkPath(t *testing.T) {
 }
 
 func TestWalkDelete(t *testing.T) {
-	r := New()
-	r.Insert("init0/0", nil)
-	r.Insert("init0/1", nil)
-	r.Insert("init0/2", nil)
-	r.Insert("init0/3", nil)
-	r.Insert("init1/0", nil)
-	r.Insert("init1/1", nil)
-	r.Insert("init1/2", nil)
-	r.Insert("init1/3", nil)
-	r.Insert("init2", nil)
+	r := New[int]()
+	r.Insert("init0/0", 1)
+	r.Insert("init0/1", 1)
+	r.Insert("init0/2", 1)
+	r.Insert("init0/3", 1)
+	r.Insert("init1/0", 1)
+	r.Insert("init1/1", 1)
+	r.Insert("init1/2", 1)
+	r.Insert("init1/3", 1)
+	r.Insert("init2", 1)
 
-	deleteFn := func(s string, v interface{}) bool {
+	deleteFn := func(s string, v int) bool {
 		r.Delete(s)
 		return false
 	}
@@ -391,18 +388,4 @@ func generateUUID() string {
 		buf[6:8],
 		buf[8:10],
 		buf[10:16])
-}
-
-func BenchmarkInsert(b *testing.B) {
-	r := New()
-	for i := 0; i < 10000; i++ {
-		r.Insert(fmt.Sprintf("init%d", i), true)
-	}
-	b.ResetTimer()
-	for n := 0; n < b.N; n++ {
-		_, updated := r.Insert(strconv.Itoa(n), true)
-		if updated {
-			b.Fatal("bad")
-		}
-	}
 }
