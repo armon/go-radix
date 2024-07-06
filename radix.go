@@ -155,7 +155,7 @@ func (t *Tree) Insert(s string, v interface{}) (interface{}, bool) {
 	n := t.root
 	search := s
 	for {
-		// Handle key exhaution
+		// Handle key exhaustion
 		if len(search) == 0 {
 			if n.isLeaf() {
 				old := n.leaf.val
@@ -246,7 +246,7 @@ func (t *Tree) Delete(s string) (interface{}, bool) {
 	n := t.root
 	search := s
 	for {
-		// Check for key exhaution
+		// Check for key exhaustion
 		if len(search) == 0 {
 			if !n.isLeaf() {
 				break
@@ -356,7 +356,7 @@ func (t *Tree) Get(s string) (interface{}, bool) {
 	n := t.root
 	search := s
 	for {
-		// Check for key exhaution
+		// Check for key exhaustion
 		if len(search) == 0 {
 			if n.isLeaf() {
 				return n.leaf.val, true
@@ -392,7 +392,7 @@ func (t *Tree) LongestPrefix(s string) (string, interface{}, bool) {
 			last = n.leaf
 		}
 
-		// Check for key exhaution
+		// Check for key exhaustion
 		if len(search) == 0 {
 			break
 		}
@@ -496,7 +496,7 @@ func (t *Tree) WalkPath(path string, fn WalkFn) {
 			return
 		}
 
-		// Check for key exhaution
+		// Check for key exhaustion
 		if len(search) == 0 {
 			return
 		}
