@@ -193,6 +193,52 @@ func TestLongestPrefix(t *testing.T) {
 	}
 }
 
+// TestLongestPrefix_PrefixMatch verifies that LongestPrefix returns the longest
+// key stored in the tree that is a prefix of search string s, and returns ("", nil, false)
+// when no stored key is a prefix or the search string diverges before matching a complete stored key.
+func TestLongestPrefix_PrefixMatch(t *testing.T) {
+	r := New()
+	r.Insert("/api/v1", 1)
+	r.Insert("/api/v1/users/admin", 2)
+	r.Insert("How many people live in the world?", 3)
+
+	tests := []struct {
+		query       string
+		expectedKey string
+		expectedVal interface{}
+		found       bool
+	}{
+		// Match where stored key is prefix of s
+		{"/api/v1", "/api/v1", 1, true},
+		{"/api/v1/users", "/api/v1", 1, true},
+		{"/api/v1/users/admin", "/api/v1/users/admin", 2, true},
+		{"/api/v1/users/admin/profile", "/api/v1/users/admin", 2, true},
+		{"How many people live in the world?", "How many people live in the world?", 3, true},
+		{"How many people live in the world? More info", "How many people live in the world?", 3, true},
+
+		// No match where query diverges before matching a complete stored key
+		{"/api/v2", "", nil, false},
+		{"/api/v2/users", "", nil, false},
+		{"/api", "", nil, false},
+		{"/", "", nil, false},
+		{"How many people live in Europe?", "", nil, false},
+		{"unrelated", "", nil, false},
+	}
+
+	for _, tt := range tests {
+		key, val, ok := r.LongestPrefix(tt.query)
+		if ok != tt.found {
+			t.Fatalf("LongestPrefix(%q) found = %v, expected %v", tt.query, ok, tt.found)
+		}
+		if key != tt.expectedKey {
+			t.Fatalf("LongestPrefix(%q) key = %q, expected %q", tt.query, key, tt.expectedKey)
+		}
+		if val != tt.expectedVal {
+			t.Fatalf("LongestPrefix(%q) val = %v, expected %v", tt.query, val, tt.expectedVal)
+		}
+	}
+}
+
 func TestWalkPrefix(t *testing.T) {
 	r := New()
 

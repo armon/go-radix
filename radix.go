@@ -380,8 +380,9 @@ func (t *Tree) Get(s string) (interface{}, bool) {
 	return nil, false
 }
 
-// LongestPrefix is like Get, but instead of an
-// exact match, it will return the longest prefix match.
+// LongestPrefix returns the longest key in the tree that is a prefix of s,
+// along with its associated value and true. If no key in the tree is a prefix
+// of s, it returns the empty string, nil, and false.
 func (t *Tree) LongestPrefix(s string) (string, interface{}, bool) {
 	var last *leafNode
 	n := t.root
