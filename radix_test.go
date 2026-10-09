@@ -193,6 +193,139 @@ func TestLongestPrefix(t *testing.T) {
 	}
 }
 
+func TestLongestPrefix_PartialMatch(t *testing.T) {
+	r := New()
+	r.Insert("/api/v1", 1)
+	r.Insert("/api/v1/users/admin", 2)
+	r.Insert("/api/v1/users/advocate", 3)
+	r.Insert("How many people live in the world?", 4)
+
+	cases := []struct {
+		query       string
+		expectedKey string
+		expectedVal interface{}
+		found       bool
+	}{
+		// Exact matches
+		{"/api/v1", "/api/v1", 1, true},
+		{"/api/v1/users/admin", "/api/v1/users/admin", 2, true},
+		{"/api/v1/users/advocate", "/api/v1/users/advocate", 3, true},
+
+		// Stored key is a prefix of query
+		{"/api/v1/users", "/api/v1", 1, true},
+		{"/api/v1/users/admin/profile", "/api/v1/users/admin", 2, true},
+		{"/api/v1/users/advocate/settings", "/api/v1/users/advocate", 3, true},
+		{"How many people live in the world? Extra", "How many people live in the world?", 4, true},
+
+		// Partial edge matches where query diverges mid-edge after a valid prefix node
+		{"/api/v1/users/ad", "/api/v1", 1, true},
+		{"/api/v1/users/adm", "/api/v1", 1, true},
+		{"/api/v1/users/adv", "/api/v1", 1, true},
+		{"/api/v1/users/advert", "/api/v1", 1, true},
+		{"/api/v1/u", "/api/v1", 1, true},
+
+		// Partial edge matches where query diverges before any stored prefix node
+		{"/api", "", nil, false},
+		{"/api/v2", "", nil, false},
+		{"/", "", nil, false},
+		{"How many people live in Europe?", "", nil, false},
+		{"How many people", "", nil, false},
+		{"How", "", nil, false},
+		{"", "", nil, false},
+		{"other", "", nil, false},
+	}
+
+	for _, c := range cases {
+		key, val, ok := r.LongestPrefix(c.query)
+		if ok != c.found {
+			t.Fatalf("LongestPrefix(%q) found = %v, expected %v", c.query, ok, c.found)
+		}
+		if key != c.expectedKey {
+			t.Fatalf("LongestPrefix(%q) key = %q, expected %q", c.query, key, c.expectedKey)
+		}
+		if val != c.expectedVal {
+			t.Fatalf("LongestPrefix(%q) val = %v, expected %v", c.query, val, c.expectedVal)
+		}
+	}
+}
+
+func TestLongestPrefix_BranchingEdgeMatches(t *testing.T) {
+	r := New()
+	r.Insert("apple", 10)
+	r.Insert("application", 20)
+	r.Insert("apply", 30)
+
+	cases := []struct {
+		query       string
+		expectedKey string
+		expectedVal interface{}
+		found       bool
+	}{
+		{"apple", "apple", 10, true},
+		{"applesauce", "apple", 10, true},
+		{"applet", "apple", 10, true},
+		{"application", "application", 20, true},
+		{"applications", "application", 20, true},
+		{"apply", "apply", 30, true},
+		{"applying", "apply", 30, true},
+
+		// Common edge prefix "appl" is not a stored key
+		{"appl", "", nil, false},
+		{"appli", "", nil, false},
+		{"applic", "", nil, false},
+		{"app", "", nil, false},
+		{"ap", "", nil, false},
+		{"a", "", nil, false},
+		{"banana", "", nil, false},
+	}
+
+	for _, c := range cases {
+		key, val, ok := r.LongestPrefix(c.query)
+		if ok != c.found {
+			t.Fatalf("LongestPrefix(%q) found = %v, expected %v", c.query, ok, c.found)
+		}
+		if key != c.expectedKey {
+			t.Fatalf("LongestPrefix(%q) key = %q, expected %q", c.query, key, c.expectedKey)
+		}
+		if val != c.expectedVal {
+			t.Fatalf("LongestPrefix(%q) val = %v, expected %v", c.query, val, c.expectedVal)
+		}
+	}
+}
+
+func TestLongestPrefix_RootLeaf(t *testing.T) {
+	r := New()
+	r.Insert("", 100)
+	r.Insert("network/http", 200)
+
+	cases := []struct {
+		query       string
+		expectedKey string
+		expectedVal interface{}
+		found       bool
+	}{
+		{"", "", 100, true},
+		{"network", "", 100, true},
+		{"network/ht", "", 100, true},
+		{"network/http", "network/http", 200, true},
+		{"network/http/v2", "network/http", 200, true},
+		{"other", "", 100, true},
+	}
+
+	for _, c := range cases {
+		key, val, ok := r.LongestPrefix(c.query)
+		if ok != c.found {
+			t.Fatalf("LongestPrefix(%q) found = %v, expected %v", c.query, ok, c.found)
+		}
+		if key != c.expectedKey {
+			t.Fatalf("LongestPrefix(%q) key = %q, expected %q", c.query, key, c.expectedKey)
+		}
+		if val != c.expectedVal {
+			t.Fatalf("LongestPrefix(%q) val = %v, expected %v", c.query, val, c.expectedVal)
+		}
+	}
+}
+
 func TestWalkPrefix(t *testing.T) {
 	r := New()
 
